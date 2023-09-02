@@ -64,23 +64,16 @@ namespace IngameScript
                 }
                 public static double AnimateTime(double startValue, double endValue, double currentTime, double duration, EasingType easingType, EasingDirection easingDirection)
                 {
-                    double change = endValue - startValue;
-                    if (endValue < startValue)
-                    {
-                        change = startValue - endValue;
-                    }
+                    double change = (endValue > startValue) ? (endValue - startValue) : (startValue - endValue);
                     return Ease(easingType, easingDirection, currentTime, startValue, change, duration);
                 }
                 public static double AnimateDistance(double startValue, double endValue, double currentPosition, EasingType easingType, EasingDirection easingDirection)
                 {
-                    double change = endValue - startValue;
-                    if (endValue < startValue)
-                    {
-                        change = startValue - endValue;
-                    }
+                    double change = (endValue > startValue) ? (endValue - startValue) : (startValue - endValue);
                     double distance = Math.Abs(endValue - currentPosition);
                     return Ease(easingType, easingDirection, currentPosition, startValue, change, distance);
                 }
+
 
 
 
