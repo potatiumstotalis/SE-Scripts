@@ -136,36 +136,5 @@ namespace IngameScript
                 }
             }
         }
-
-        public enum SimpleEasingType
-        {
-            Linear,
-            Quadratic,
-            Cubic,
-            Quartic,
-            Quintic,
-            Sine
-        }
-
-        public enum SimpleEasingDirection
-        {
-            In,
-            Out
-        }
-
-        public double SimpleEase(SimpleEasingType type, SimpleEasingDirection direction, double t, double b, double c, double d)
-        {
-            return Potato_Utilities.Easing.Ease((Potato_Utilities.Easing.EasingType)type, (Potato_Utilities.Easing.EasingDirection)direction, t, b, c, d);
-        }
-
-        public void Main(string argument)
-        {
-            double t = 0.5;  // Current time
-            double b = 0;    // Start value
-            double c = 1;    // Change in value
-            double d = 1;    // Duration
-
-            double easedValue = SimpleEase(SimpleEasingType.Quadratic, SimpleEasingDirection.In, t, b, c, d);
-        }
     }
 }
