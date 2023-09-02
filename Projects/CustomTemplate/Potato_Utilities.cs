@@ -57,19 +57,31 @@ namespace IngameScript
                         case AnimationType.time:
                             return AnimateTime(startValue, endValue, variable1, variable2, easingType, easingDirection);
                         case AnimationType.distance:
-                            return AnimateDistance(startValue, endValue, variable1, variable2, easingType, easingDirection);
+                            return AnimateDistance(startValue, endValue, variable1, easingType, easingDirection);
                         default:
                             throw new ArgumentException("Invalid animation type");
                     }
                 }
                 public static double AnimateTime(double startValue, double endValue, double currentTime, double duration, EasingType easingType, EasingDirection easingDirection)
                 {
-                    return 0;
+                    double change = endValue - startValue;
+                    if (endValue < startValue)
+                    {
+                        change = startValue - endValue;
+                    }
+                    return Ease(easingType, easingDirection, currentTime, startValue, change, duration);
                 }
-                public static double AnimateDistance(double startValue, double endValue, double currentPosition, double targetPosition, EasingType easingType, EasingDirection easingDirection)
+                public static double AnimateDistance(double startValue, double endValue, double currentPosition, EasingType easingType, EasingDirection easingDirection)
                 {
-                    return 0;
+                    double change = endValue - startValue;
+                    if (endValue < startValue)
+                    {
+                        change = startValue - endValue;
+                    }
+                    double distance = Math.Abs(endValue - currentPosition);
+                    return Ease(easingType, easingDirection, currentPosition, startValue, change, distance);
                 }
+
 
 
 
