@@ -55,23 +55,20 @@ namespace IngameScript
                     switch (animationType)
                     {
                         case AnimationType.time:
-                            return Potato_Utilities.Animation.AnimateTime(startValue, endValue, variable1, variable2, type, direction);
+                            return AnimateTime(startValue, endValue, variable1, variable2, easingType, easingDirection);
                         case AnimationType.distance:
-                            return Potato_Utilities.Animation.AnimateDistance(startValue, endValue, variable1, variable2, type, direction);
+                            return AnimateDistance(startValue, endValue, variable1, variable2, easingType, easingDirection);
                         default:
                             throw new ArgumentException("Invalid animation type");
                     }
                 }
                 public static double AnimateTime(double startValue, double endValue, double currentTime, double duration, EasingType easingType, EasingDirection easingDirection)
                 {
-                    double change = endValue - startValue;
-                    return Easing.Ease(easingType, easingDirection, currentTime, startValue, change, duration);
+                    return 0;
                 }
                 public static double AnimateDistance(double startValue, double endValue, double currentPosition, double targetPosition, EasingType easingType, EasingDirection easingDirection)
                 {
-                    double ratio = (currentPosition - startValue) / (targetPosition - startValue);
-                    double value = startValue + ratio * (endValue - startValue);
-                    return Easing.Ease(easingType, easingDirection, value, startValue, endValue - startValue, 1);
+                    return 0;
                 }
 
 
