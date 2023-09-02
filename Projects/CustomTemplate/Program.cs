@@ -55,6 +55,7 @@ namespace IngameScript
             // It's recommended to set Runtime.UpdateFrequency 
             // here, which will allow your script to run itself without a 
             // timer block.
+
         }
 
         public void Save()
@@ -69,6 +70,7 @@ namespace IngameScript
 
         public void Main(string argument, UpdateType updateSource)
         {
+
             // The main entry point of the script, invoked every time
             // one of the programmable block's Run actions are invoked,
             // or the script updates itself. The updateSource argument
@@ -78,6 +80,16 @@ namespace IngameScript
             // 
             // The method itself is required, but the arguments above
             // can be removed if not needed.
+        }
+
+        //WRAPPER FUNCTIONS
+        // Wrapper function to simplify the call to the Ease method
+        public double Easing(string type, string direction, double t, double b, double c, double d)
+        {
+            Potato_Utilities.Easing.EasingType easingType = (Potato_Utilities.Easing.EasingType)Enum.Parse(typeof(Potato_Utilities.Easing.EasingType), type);
+            Potato_Utilities.Easing.EasingDirection easingDirection = (Potato_Utilities.Easing.EasingDirection)Enum.Parse(typeof(Potato_Utilities.Easing.EasingDirection), direction);
+
+            return Potato_Utilities.Easing.Ease(easingType, easingDirection, t, b, c, d);
         }
     }
 }
