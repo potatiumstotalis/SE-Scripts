@@ -47,9 +47,12 @@ namespace IngameScript
         // WRAPPER FUNCTIONS
         public double Animate(string animationType, string easingType, string easingDirection, double startValue, double endValue, double variable1, double variable2)
         {
-            Potato_Utilities.Animation.AnimationType atype = (Potato_Utilities.Animation.AnimationType)Enum.Parse(typeof(Potato_Utilities.Animation.AnimationType), animationType);
-            Potato_Utilities.Animation.EasingType etype = (Potato_Utilities.Animation.EasingType)Enum.Parse(typeof(Potato_Utilities.Animation.EasingType), easingType);
-            Potato_Utilities.Animation.EasingDirection edirection = (Potato_Utilities.Animation.EasingDirection)Enum.Parse(typeof(Potato_Utilities.Animation.EasingDirection), easingDirection);
+            Potato_Utilities.Animation.AnimationType parsedAnimationType = (Potato_Utilities.Animation.AnimationType)Enum.Parse(typeof(Potato_Utilities.Animation.AnimationType), animationType, true);
+            Potato_Utilities.Animation.EasingType parsedEasingType = (Potato_Utilities.Animation.EasingType)Enum.Parse(typeof(Potato_Utilities.Animation.EasingType), easingType, true);
+            Potato_Utilities.Animation.EasingDirection parsedEasingDirection = (Potato_Utilities.Animation.EasingDirection)Enum.Parse(typeof(Potato_Utilities.Animation.EasingDirection), easingDirection, true);
+
+            return Potato_Utilities.Animation.Animate(parsedAnimationType, parsedEasingType, parsedEasingDirection, startValue, endValue, variable1, variable2);
         }
+
     }
 }
