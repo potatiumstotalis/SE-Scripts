@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33801.468
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutomationTest", "AutomationTest.csproj", "{73B083A4-950D-4E5E-A2F2-BAA29BA0769C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{73B083A4-950D-4E5E-A2F2-BAA29BA0769C}.Debug|x64.ActiveCfg = Debug|x64
+		{73B083A4-950D-4E5E-A2F2-BAA29BA0769C}.Debug|x64.Build.0 = Debug|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0D0C5B71-C238-4EFB-8941-61D19C4C0A47}
+	EndGlobalSection
+EndGlobal
