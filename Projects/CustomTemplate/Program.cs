@@ -83,6 +83,12 @@ namespace IngameScript
         }
 
         //WRAPPER FUNCTIONS
+        // Wrapper function to use Animation class
+        public void AnimateSomething()
+        {
+            // Implementation here
+        }
+
         // Wrapper function to simplify the call to the Ease method
         public double Easing(string type, string direction, double t, double b, double c, double d)
         {

@@ -17,6 +17,7 @@ using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Ingame.Utilities;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRageMath;
+using static IngameScript.Program.Potato_Utilities.Easing;
 
 namespace IngameScript
 {
@@ -135,6 +136,45 @@ namespace IngameScript
                     }
                 }
             }
+            public class Animation
+            {
+                // Animate any variable through time
+                public static double AnimateTime(double startValue, double endValue, double currentTime, double duration, EasingType easingType, EasingDirection easingDirection)
+                {
+                    // Implementation here
+                }
+
+                // Animate any variable through distance
+                public static double AnimateDistance(double startValue, double endValue, double currentPosition, double targetPosition)
+                {
+                    // Implementation here
+                }
+
+                // Apply smoothing (easing)
+                public static double ApplySmoothing(double value, EasingType easingType, EasingDirection easingDirection)
+                {
+                    // Implementation here
+                }
+            }
+            public class Sequence
+            {
+                // Queue to hold animations
+                private Queue<Animation> animationQueue = new Queue<Animation>();
+
+                // Add an animation to the sequence queue
+                public void AddToQueue(Animation animation)
+                {
+                    // Implementation here
+                }
+
+                // Execute the animations in the sequence
+                public void Execute()
+                {
+                    // Implementation here
+                }
+            }
+
+
         }
     }
 }
