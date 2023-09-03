@@ -17,8 +17,6 @@ using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Ingame.Utilities;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRageMath;
-using static IngameScript.Program.Potato_Utilities.Animation;
-using static IngameScript.Program.Potato_Utilities.Sequence;
 
 namespace IngameScript
 {
@@ -30,6 +28,7 @@ namespace IngameScript
             {
                 // Fields and methods for managing a sequence of Animation_Parts
             }
+
             public class Animation_Part
             {
                 public enum PartType
@@ -38,11 +37,13 @@ namespace IngameScript
                     EaseOut,
                     Hold
                 }
+
                 public enum AnimationType
                 {
                     time,
                     distance
                 }
+
                 public enum EasingType
                 {
                     linear,
@@ -52,6 +53,7 @@ namespace IngameScript
                     quintic,
                     sine
                 }
+
                 public enum EasingDirection
                 {
                     ezin,
@@ -60,7 +62,6 @@ namespace IngameScript
 
                 public double Animate(AnimationType animationType, EasingType easingType, EasingDirection easingDirection, double startValue, double endValue, double variable1, double variable2)
                 {
-
                     switch (animationType)
                     {
                         case AnimationType.time:
@@ -71,21 +72,19 @@ namespace IngameScript
                             throw new ArgumentException("Invalid animation type");
                     }
                 }
+
                 public static double AnimateTime(double startValue, double endValue, double currentTime, double duration, EasingType easingType, EasingDirection easingDirection)
                 {
                     double change = (endValue > startValue) ? (endValue - startValue) : (startValue - endValue);
                     return Ease(easingType, easingDirection, currentTime, startValue, change, duration);
                 }
+
                 public static double AnimateDistance(double startValue, double endValue, double currentPosition, EasingType easingType, EasingDirection easingDirection)
                 {
                     double change = (endValue > startValue) ? (endValue - startValue) : (startValue - endValue);
                     double distance = Math.Abs(endValue - currentPosition);
                     return Ease(easingType, easingDirection, currentPosition, startValue, change, distance);
                 }
-
-
-
-
 
                 public static double Ease(EasingType type, EasingDirection direction, double t, double b, double c, double d)
                 {
@@ -107,6 +106,7 @@ namespace IngameScript
                             throw new ArgumentException("Invalid easing type");
                     }
                 }
+
                 private static double LinearEase(EasingDirection direction, double t, double b, double c, double d)
                 {
                     return c * t / d + b;
@@ -174,6 +174,7 @@ namespace IngameScript
                     }
                 }
             }
+
             public class Sequence
             {
                 private Queue<Action> animationQueue = new Queue<Action>();
@@ -192,8 +193,6 @@ namespace IngameScript
                     }
                 }
             }
-
-
         }
     }
 }
