@@ -34,6 +34,7 @@ namespace IngameScript
         }
 
         // Default Values
+        string lightName = "Light1";
         float maxTime = 5f;
         float targetIntensity = 2f;
         PotatoAnimation.Time.Direction direction = PotatoAnimation.Time.Direction.InOut;
@@ -44,11 +45,11 @@ namespace IngameScript
 
         public void Main(string argument, UpdateType updateSource)
         {
-            if ((updateSource & UpdateType.Terminal) != 0)
+            if ((updateSource & UpdateType.Terminal) != 0 || (updateSource & UpdateType.Trigger) != 0 || (updateSource & UpdateType.Script) != 0)
             {
                 // Parse the argument
                 string[] args = argument.Split(',');
-                string lightName = args.Length > 0 ? args[0].Trim() : "Light1";
+                lightName = args.Length > 0 ? args[0].Trim() : "Light1";
                 float targetIntensity = args.Length > 1 ? float.Parse(args[1].Trim()) : 2f;
                 maxTime = args.Length > 2 ? float.Parse(args[2].Trim()) : 5f;
                 PotatoAnimation.Time.Direction direction = args.Length > 3 ? (PotatoAnimation.Time.Direction)Enum.Parse(typeof(PotatoAnimation.Time.Direction), args[3].Trim()) : PotatoAnimation.Time.Direction.InOut;
@@ -73,12 +74,16 @@ namespace IngameScript
             if (isAnimating)
             {
                 // Get the light block again
-                IMyInteriorLight light = GridTerminalSystem.GetBlockWithName("Light1") as IMyInteriorLight;
+                IMyInteriorLight light = GridTerminalSystem.GetBlockWithName(lightName) as IMyInteriorLight;
 
                 if (light != null)
                 {
                     // Animate the intensity
                     float newIntensity = PotatoAnimation.Time.Animate(currentTime, maxTime, initialIntensity, targetIntensity, direction, type);
+
+                    Echo("New Intensity: " + newIntensity.ToString());
+                    Echo("Light Intensity: " + light.Intensity);
+                    Echo("Current Time: " + currentTime);
 
                     // Update the light intensity
                     light.Intensity = newIntensity;

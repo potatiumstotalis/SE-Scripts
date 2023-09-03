@@ -116,12 +116,17 @@ namespace IngameScript
                 }
 
                 //Return the Final value
+                public static float normalizedTime;
+                public static float normalizedValue;
+                public static float easedValue;
+                public static float denormalizedValue;
+
                 public static float Animate(float time, float maxTime, float startValue, float endValue, Direction easedir, Type easetype)
                 {
-                    float normalizedTime = time / maxTime;
-                    float normalizedValue = Normalize(normalizedTime, startValue, endValue);
-                    float easedValue = Ease(normalizedValue, easedir, easetype);
-                    float denormalizedValue = Denormalize(easedValue, startValue, endValue);
+                    normalizedTime = time / maxTime;
+                    normalizedValue = Normalize(normalizedTime, startValue, endValue);
+                    easedValue = Ease(normalizedValue, easedir, easetype);
+                    denormalizedValue = Denormalize(easedValue, startValue, endValue);
                     return denormalizedValue;
                 }
 
