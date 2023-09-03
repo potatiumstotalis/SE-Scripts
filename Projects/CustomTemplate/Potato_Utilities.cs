@@ -62,32 +62,6 @@ namespace IngameScript
                     return normalizedValue;
                 }
 
-                //Denormalize from 0-1 to startValue-endValue
-                public static float Denormalize(float normalizedValue, float startValue, float endValue)
-                {
-                    // Check if the normalizedValue is out of the 0-1 range
-                    if (normalizedValue < 0 || normalizedValue > 1)
-                    {
-                        throw new ArgumentException("normalizedValue must be between 0 and 1.");
-                    }
-
-                    // Determine the direction
-                    bool isPositiveDirection = endValue > startValue;
-
-                    // Denormalize the value based on the direction
-                    float originalValue;
-                    if (isPositiveDirection)
-                    {
-                        originalValue = startValue + normalizedValue * (endValue - startValue);
-                    }
-                    else
-                    {
-                        originalValue = startValue - normalizedValue * (startValue - endValue);
-                    }
-
-                    return originalValue;
-                }
-                
                 //Ease the Normalized value
                 public static float Ease(float t, Direction direction, Type type)
                 {
@@ -112,6 +86,32 @@ namespace IngameScript
                         default:
                             throw new ArgumentException("Invalid easing type.");
                     }
+                }
+
+                //Denormalize from 0-1 to startValue-endValue
+                public static float Denormalize(float normalizedValue, float startValue, float endValue)
+                {
+                    // Check if the normalizedValue is out of the 0-1 range
+                    if (normalizedValue < 0 || normalizedValue > 1)
+                    {
+                        throw new ArgumentException("normalizedValue must be between 0 and 1.");
+                    }
+
+                    // Determine the direction
+                    bool isPositiveDirection = endValue > startValue;
+
+                    // Denormalize the value based on the direction
+                    float originalValue;
+                    if (isPositiveDirection)
+                    {
+                        originalValue = startValue + normalizedValue * (endValue - startValue);
+                    }
+                    else
+                    {
+                        originalValue = startValue - normalizedValue * (startValue - endValue);
+                    }
+
+                    return originalValue;
                 }
 
                 //Return the Final value
