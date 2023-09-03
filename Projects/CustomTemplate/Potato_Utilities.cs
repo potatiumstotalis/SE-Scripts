@@ -32,6 +32,12 @@ namespace IngameScript
             }
             public class Animation_Part
             {
+                public enum PartType
+                {
+                    EaseIn,
+                    EaseOut,
+                    Hold
+                }
                 public enum AnimationType
                 {
                     time,
