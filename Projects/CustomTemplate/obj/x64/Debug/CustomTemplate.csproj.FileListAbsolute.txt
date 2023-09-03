@@ -1,0 +1,4 @@
+D:\GitHub\Repos\SE - Scripts\Projects\CustomTemplate\obj\x64\Debug\CustomTemplate.csproj.AssemblyReference.cache
+D:\GitHub\Repos\SE - Scripts\Projects\CustomTemplate\obj\x64\Debug\CustomTemplate.csproj.SuggestedBindingRedirects.cache
+D:\GitHub\Repos\SE - Scripts\Projects\CustomTemplate\obj\x64\Debug\CustomTemplate.exe.config
+D:\GitHub\Repos\SE - Scripts\Projects\CustomTemplate\obj\x64\Debug\CustomTemplate.csproj.CoreCompileInputs.cache

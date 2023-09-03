@@ -47,11 +47,9 @@ namespace IngameScript
                 public enum EasingType
                 {
                     linear,
-                    quadratic,
-                    cubic,
-                    quartic,
-                    quintic,
-                    sine
+                    sine,
+                    half,
+                    cubic
                 }
 
                 public enum EasingDirection
@@ -75,104 +73,41 @@ namespace IngameScript
 
                 public static double AnimateTime(double startValue, double endValue, double currentTime, double duration, EasingType easingType, EasingDirection easingDirection)
                 {
-                    double change = (endValue > startValue) ? (endValue - startValue) : (startValue - endValue);
-                    return Ease(easingType, easingDirection, currentTime, startValue, change, duration);
+                    double difference = endValue - startValue; // Automatically handles direction
+                    return Ease(easingType, currentTime, startValue, difference, duration);
                 }
 
                 public static double AnimateDistance(double startValue, double endValue, double currentPosition, EasingType easingType, EasingDirection easingDirection)
                 {
-                    double change = (endValue > startValue) ? (endValue - startValue) : (startValue - endValue);
-                    double distance = Math.Abs(endValue - currentPosition);
-                    return Ease(easingType, easingDirection, currentPosition, startValue, change, distance);
+                    double difference = endValue - startValue; // Automatically handles direction
+                    double target = Math.Abs(endValue - currentPosition);
+                    return Ease(easingType, currentPosition, startValue, difference, target);
                 }
 
-                public static double Ease(EasingType type, EasingDirection direction, double t, double b, double c, double d)
+
+
+                // Easing Variable Explanations:
+                /* 
+                 * c: Current Time/Position — The current time or position of the animation.
+                 * s: Starting Value — The initial value of the property being animated.
+                 * d: Difference — The change in the property value, calculated as the ending value minus the starting value.
+                 * t: Target Duration/Position — The total time or target position the animation will take or reach.
+                 */
+
+                public static double Ease(EasingType type, double c, double s, double d, double t)
                 {
-                    switch (type)
-                    {
-                        case EasingType.linear:
-                            return LinearEase(direction, t, b, c, d);
-                        case EasingType.quadratic:
-                            return QuadraticEase(direction, t, b, c, d);
-                        case EasingType.cubic:
-                            return CubicEase(direction, t, b, c, d);
-                        case EasingType.quartic:
-                            return QuarticEase(direction, t, b, c, d);
-                        case EasingType.quintic:
-                            return QuinticEase(direction, t, b, c, d);
-                        case EasingType.sine:
-                            return SineEase(direction, t, b, c, d);
-                        default:
-                            throw new ArgumentException("Invalid easing type");
-                    }
+                    return type == EasingType.linear ? LinearEase(c, s, d, t) :
+                           type == EasingType.sine ? SineEase(c, s, d, t) :
+                           type == EasingType.half ? HalfEase(c, s, d, t) :
+                           type == EasingType.cubic ? CubicEase(c, s, d, t) :
+                           0; // Default case, can also throw an exception if you prefer
                 }
 
-                private static double LinearEase(EasingDirection direction, double t, double b, double c, double d)
-                {
-                    return c * t / d + b;
-                }
-                private static double QuadraticEase(EasingDirection direction, double t, double b, double c, double d)
-                {
-                    t /= d;
-                    if (direction == EasingDirection.ezin)
-                    {
-                        return c * t * t + b;
-                    }
-                    else
-                    {
-                        return -c * t * (t - 2) + b;
-                    }
-                }
-                private static double CubicEase(EasingDirection direction, double t, double b, double c, double d)
-                {
-                    t /= d;
-                    if (direction == EasingDirection.ezin)
-                    {
-                        return c * t * t * t + b;
-                    }
-                    else
-                    {
-                        t--;
-                        return c * (t * t * t + 1) + b;
-                    }
-                }
-                private static double QuarticEase(EasingDirection direction, double t, double b, double c, double d)
-                {
-                    t /= d;
-                    if (direction == EasingDirection.ezin)
-                    {
-                        return c * t * t * t * t + b;
-                    }
-                    else
-                    {
-                        t--;
-                        return -c * (t * t * t * t - 1) + b;
-                    }
-                }
-                private static double QuinticEase(EasingDirection direction, double t, double b, double c, double d)
-                {
-                    t /= d;
-                    if (direction == EasingDirection.ezin)
-                    {
-                        return c * t * t * t * t * t + b;
-                    }
-                    else
-                    {
-                        t--;
-                        return c * (t * t * t * t * t + 1) + b;
-                    }
-                }
-                private static double SineEase(EasingDirection direction, double t, double b, double c, double d)
-                {
-                    if (direction == EasingDirection.ezin)
-                    {
-                        return -c * Math.Cos(t / d * (Math.PI / 2)) + c + b;
-                    }
-                    else
-                    {
-                        return c * Math.Sin(t / d * (Math.PI / 2)) + b;
-                    }
-                }
+                private static double LinearEase(double c, double s, double d, double t) => d * c / t + s;
+                private static double SineEase(double c, double s, double d, double t) => d * Math.Sin(c / t * (Math.PI / 2)) + s;
+                private static double HalfEase(double c, double s, double d, double t) => d * Math.Sqrt(c / t) + s;
+                private static double CubicEase(double c, double s, double d, double t) => d * (c /= t) * c * c + s;
+
             }
 
             public class Sequence
