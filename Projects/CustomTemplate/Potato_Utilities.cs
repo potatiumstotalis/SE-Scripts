@@ -17,6 +17,7 @@ using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Ingame.Utilities;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRageMath;
+using static IngameScript.Program.PotatoAnimation;
 
 namespace IngameScript
 {
@@ -115,10 +116,11 @@ namespace IngameScript
                 }
 
                 //Return the Final value
-                public static float Animate(float value, float startValue, float endValue, Direction dir, Type type)
+                public static float Animate(float time, float maxTime, float startValue, float endValue, Direction easedir, Type easetype)
                 {
-                    float normalizedValue = Normalize(value, startValue, endValue);
-                    float easedValue = Ease(normalizedValue, dir, type);
+                    float normalizedTime = time / maxTime;
+                    float normalizedValue = Normalize(normalizedTime, startValue, endValue);
+                    float easedValue = Ease(normalizedValue, easedir, easetype);
                     float denormalizedValue = Denormalize(easedValue, startValue, endValue);
                     return denormalizedValue;
                 }
