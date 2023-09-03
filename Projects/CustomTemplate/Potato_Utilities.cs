@@ -26,8 +26,11 @@ namespace IngameScript
     {
         public class Potato_Utilities
         {
-
             public class Animation
+            {
+                // Fields and methods for managing a sequence of Animation_Parts
+            }
+            public class Animation_Part
             {
                 public enum AnimationType
                 {
@@ -165,7 +168,6 @@ namespace IngameScript
                     }
                 }
             }
-
             public class Sequence
             {
                 private Queue<Action> animationQueue = new Queue<Action>();
