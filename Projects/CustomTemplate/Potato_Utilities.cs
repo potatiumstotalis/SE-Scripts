@@ -17,20 +17,20 @@ using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Ingame.Utilities;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRageMath;
-using static IngameScript.Program.PotatoAnimation;
+using static IngameScript.Program.Animation;
 
 namespace IngameScript
 {
     partial class Program
     {
-        public class PotatoAnimation
+        public static class Animation
         {
             public static class Sequence
             {
                 //Write methods for sequencing/concatenating animations
             }
 
-            //Easing: AnimateTime.Ease(time, startValue, endValue, direction, type)
+            //How to use -> Animation.Time.Animate(currentTime, maxTime, startValue, endValue, direction, type);
             public class Time
             {
                 public enum Direction { In, Out, InOut }
