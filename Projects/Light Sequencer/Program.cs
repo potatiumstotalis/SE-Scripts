@@ -34,6 +34,14 @@ namespace Light_Sequencer
 
         public void Main(string argument, UpdateType updateSource)
         {
+            LoadData();
+        }
+
+        public void LoadData()
+        {
+            // Initialize a dictionary to hold BlockName and corresponding IMyLightingBlock
+            Dictionary<string, IMyLightingBlock> blockDictionary = new Dictionary<string, IMyLightingBlock>();
+
             // Fetch Custom Data
             string customData = Me.CustomData;
 
@@ -67,6 +75,20 @@ namespace Light_Sequencer
 
                         AnimationSection animation_s = new AnimationSection(blockName, targetIntensity, targetTime, easingDirection, easingType);
                         currentSequence.Animations.Add(animation_s);
+
+                        // Populate the blockDictionary
+                        if (!blockDictionary.ContainsKey(blockName))
+                        {
+                            IMyLightingBlock block = GridTerminalSystem.GetBlockWithName(blockName) as IMyLightingBlock;
+                            if (block != null)
+                            {
+                                blockDictionary[blockName] = block;
+                            }
+                            else
+                            {
+                                Echo(blockName + " not found.");
+                            }
+                        }
                     }
                 }
             }
