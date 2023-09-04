@@ -31,39 +31,13 @@ namespace IngameScript
             }
 
             //Easing: AnimateTime.Ease(value, startValue, endValue, direction, type)
-            public static class Time
+            public class Time
             {
                 public enum Direction { In, Out, InOut }
                 public enum Type { linear, quad, cubic, quart, quint, sine, expo, circ }
 
 
-                //Normalize from startValue-endValue to 0-1
-                public static float Normalize(float value, float startValue, float endValue)
-                {
-                    // Check if startValue and endValue are the same to avoid division by zero
-                    if (startValue == endValue)
-                    {
-                        throw new ArgumentException("startValue and endValue cannot be the same.");
-                    }
-
-                    // Determine the direction
-                    bool isPositiveDirection = endValue > startValue;
-
-                    // Normalize the value based on the direction
-                    float normalizedValue;
-                    if (isPositiveDirection)
-                    {
-                        normalizedValue = (value - startValue) / (endValue - startValue);
-                    }
-                    else
-                    {
-                        normalizedValue = (startValue - value) / (startValue - endValue);
-                    }
-
-                    return normalizedValue;
-                }
-
-                //Ease the Normalized value
+                //Choose Easing Function
                 public static float Ease(float t, Direction direction, Type type)
                 {
                     switch (type)
@@ -89,45 +63,28 @@ namespace IngameScript
                     }
                 }
 
-                //Denormalize from 0-1 to startValue-endValue
-                public static float Denormalize(float normalizedValue, float startValue, float endValue)
-                {
-                    // Check if the normalizedValue is out of the 0-1 range
-                    if (normalizedValue < 0 || normalizedValue > 1)
-                    {
-                        throw new ArgumentException("normalizedValue must be between 0 and 1.");
-                    }
-
-                    // Determine the direction
-                    bool isPositiveDirection = endValue > startValue;
-
-                    // Denormalize the value based on the direction
-                    float originalValue;
-                    if (isPositiveDirection)
-                    {
-                        originalValue = startValue + normalizedValue * (endValue - startValue);
-                    }
-                    else
-                    {
-                        originalValue = startValue - normalizedValue * (startValue - endValue);
-                    }
-
-                    return originalValue;
-                }
-
-                //Return the Final value
-                public static float normalizedTime;
-                public static float normalizedValue;
-                public static float easedValue;
-                public static float denormalizedValue;
+                //Return the Final value (ANIMATE)
+                public static float nTime;
+                public static float easedTime;
+                public static float nValue;
+                public static float finalValue;
 
                 public static float Animate(float time, float maxTime, float startValue, float endValue, Direction easedir, Type easetype)
                 {
-                    normalizedTime = time / maxTime;
-                    normalizedValue = Normalize(normalizedTime, startValue, endValue);
-                    easedValue = Ease(normalizedValue, easedir, easetype);
-                    denormalizedValue = Denormalize(easedValue, startValue, endValue);
-                    return denormalizedValue;
+                    nTime = time / maxTime;
+                    easedTime = Ease(nTime, easedir, easetype);
+
+                    if (startValue < endValue)
+                    {
+                        nValue = endValue - startValue;
+                        finalValue = (easedTime * nValue) + startValue;
+                    }
+                    else
+                    {
+                        nValue = startValue - endValue;
+                        finalValue = ((-(easedTime - 1) * nValue) + endValue);
+                    }
+                    return finalValue;
                 }
 
                 //Easing Functions | Imported from: https://gist.github.com/Kryzarel/bba64622057f21a1d6d44879f9cd7bd4
