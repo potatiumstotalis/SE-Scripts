@@ -176,7 +176,6 @@ namespace IngameScript
                 //Return the Final value (ANIMATE)
                 public static float nVelocity;
                 public static float easedRatio;
-                public static float nValue;
                 public static float finalValue;
                 public static float distance;
                 public static float movementAdder;

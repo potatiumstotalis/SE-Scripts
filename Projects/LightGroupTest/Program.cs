@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Data;
 using System.Linq;
 using System.Text;
 using VRage;
@@ -17,16 +18,92 @@ using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Ingame.Utilities;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRageMath;
-using static IngameScript.Program.P_Animation;
 
 namespace IngameScript
 {
     partial class Program : MyGridProgram
     {
-        // Initialize self-updating
+        //ACTUAL SCRIPT STARTS HERE
+        P_Animation.Time.Direction defaultEasingDirection = P_Animation.Time.Direction.InOut;
+        P_Animation.Time.Type defaultEasingType = P_Animation.Time.Type.sine;
+
+        List<AnimationSection> animations = new List<AnimationSection>();
+        static Dictionary<string, IMyLightingBlock> blockDictionary = new Dictionary<string, IMyLightingBlock>();
+        int animationCount = 0;
+
+        bool sequenceisRunning;
+
         public Program()
         {
             Runtime.UpdateFrequency = UpdateFrequency.None; // No automatic updates
+        }
+        public void Main(string argument, UpdateType updateSource)
+        {
+            Echo("Animation Count: " + animationCount);
+            if ((updateSource & UpdateType.Terminal) != 0)
+            {
+
+                if (argument.ToLower() == "start")
+                {
+                    animationCount = 0;
+                    Runtime.UpdateFrequency = UpdateFrequency.Update1;
+                    sequenceisRunning = true;
+                }
+                else if (argument.ToLower() == "set")
+                {
+                    LoadData();
+                }
+            }
+            else if ((updateSource & UpdateType.Update1) != 0)
+            {
+                for (int i = 0; i < animations.Count; i++)
+                {
+                    if (i == 0) { animations[i].Animate(true); }
+                    else { animations[i].Animate(animations[i - 1].Trigger()); Echo("Trigger -> " + (i - 1) + ": " + animations[i - 1].Trigger()); }
+                    Echo("i: " + i);
+                    if (animations[i].IsFinished()) { animationCount++; }
+                }
+            }
+        }
+
+        public void LoadData()
+        {
+            animations.Clear();
+            blockDictionary.Clear();
+
+            string customData = Me.CustomData;
+            string[] lines = customData.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+
+            foreach (string line in lines)
+            {
+                string[] parts = line.Split(',');
+                if (parts.Length >= 2)
+                {
+                    string blockName = parts[0].Trim();
+                    float targetValue = parts.Length > 1 ? float.Parse(parts[1].Trim()) : 5f;
+                    float targetTime = parts.Length > 2 ? float.Parse(parts[2].Trim()) : 10f;
+                    float transitionTime = parts.Length > 3 ? float.Parse(parts[3].Trim()) : 8f;
+                    P_Animation.Time.Direction easingDirection = parts.Length > 4 ? (P_Animation.Time.Direction)Enum.Parse(typeof(P_Animation.Time.Direction), parts[4].Trim()) : defaultEasingDirection; // Default value
+                    P_Animation.Time.Type easingType = parts.Length > 5 ? (P_Animation.Time.Type)Enum.Parse(typeof(P_Animation.Time.Type), parts[5].Trim()) : defaultEasingType; // Default value
+                    string blockParameter = parts.Length > 6 ? parts[6].Trim() : "intensity";  // Default Value
+
+                    AnimationSection animation = new AnimationSection(blockName, targetValue, targetTime, transitionTime, easingDirection, easingType, blockParameter);
+                    animations.Add(animation);
+
+                    if (!blockDictionary.ContainsKey(blockName))
+                    {
+                        IMyLightingBlock block = GridTerminalSystem.GetBlockWithName(blockName) as IMyLightingBlock;
+                        if (block != null)
+                        {
+                            blockDictionary[blockName] = block;
+                        }
+                        else
+                        {
+                            Echo(blockName + " not found.");
+                        }
+                    }
+                }
+            }
         }
 
         public void Save()
@@ -34,69 +111,88 @@ namespace IngameScript
             // Save state here
         }
 
-        // Default Values
-        string lightName;
-        float maxTime;
-        float targetIntensity;
-        P_Animation.Time.Direction direction;
-        P_Animation.Time.Type type;
-        float currentTime;
-        float initialIntensity;
-        bool isAnimating;
 
-        public void Main(string argument, UpdateType updateSource)
+        public class AnimationSection
         {
-            if ((updateSource & UpdateType.Terminal) != 0 || (updateSource & UpdateType.Trigger) != 0 || (updateSource & UpdateType.Script) != 0)
+            public string BlockName { get; set; }
+            public float TargetIntensity { get; set; }
+            public float TargetTime { get; set; }
+            public float TransitionTime { get; set; }
+            public P_Animation.Time.Direction EasingDirection { get; set; }
+            public P_Animation.Time.Type EasingType { get; set; }
+            public string BlockParameter { get; set; }
+
+            float initialIntensity = 0f;
+            bool isAnimating = false;
+            bool transitionTrigger = false;
+            bool isFinished = false;
+            float currentTime = 0f;
+
+            Program p;
+
+            public AnimationSection(string blockName, float targetIntensity, float targetTime, float transitionTime, P_Animation.Time.Direction easingDirection, P_Animation.Time.Type easingType, string blockParameter)
             {
-                // Parse the argument
-                string[] args = argument.Split(',');
-                lightName = args.Length > 0 ? args[0].Trim() : "Light1";
-                targetIntensity = args.Length > 1 ? float.Parse(args[1].Trim()) : 2f;
-                maxTime = args.Length > 2 ? float.Parse(args[2].Trim()) : 5f;
-                direction = args.Length > 3 ? (P_Animation.Time.Direction)Enum.Parse(typeof(P_Animation.Time.Direction), args[3].Trim()) : P_Animation.Time.Direction.InOut;
-                type = args.Length > 4 ? (P_Animation.Time.Type)Enum.Parse(typeof(P_Animation.Time.Type), args[4].Trim()) : P_Animation.Time.Type.sine;
+                BlockName = blockName;
+                TargetIntensity = targetIntensity;
+                TargetTime = targetTime;
+                TransitionTime = transitionTime;
+                EasingDirection = easingDirection;
+                EasingType = easingType;
+                BlockParameter = blockParameter;
+            }
 
-                // Get the light block
-                IMyInteriorLight light = GridTerminalSystem.GetBlockWithName(lightName) as IMyInteriorLight;
+            public void Animate(bool animationTrigger)
+            {
+                IMyLightingBlock light = blockDictionary[BlockName];
 
-                if (light != null)
+                if (light != null && animationTrigger)
                 {
                     // Capture the initial intensity
                     initialIntensity = light.Intensity;
 
                     // Start the animation
                     isAnimating = true;
-
-                    // Enable self-updating
-                    Runtime.UpdateFrequency = UpdateFrequency.Update1;
+                    isFinished = false;
                 }
-            }
 
-            if (isAnimating)
-            {
-                // Get the light block again
-                IMyInteriorLight light = GridTerminalSystem.GetBlockWithName(lightName) as IMyInteriorLight;
-
-                if (light != null)
+                if (light != null && isAnimating)
                 {
-
-                    // Update the light intensity
-                    light.Intensity = P_Animation.Time.Animate(currentTime, maxTime, initialIntensity, targetIntensity, direction, type);
-                    Echo("Intensity: " + light.Intensity);
+                    if (BlockParameter.ToLower() == "intensity")
+                    {
+                        light.Intensity = P_Animation.Time.Animate(currentTime, TargetTime, initialIntensity, TargetIntensity, EasingDirection, EasingType);
+                    }
+                    else if (BlockParameter.ToLower() == "radius")
+                    {
+                        light.Radius = P_Animation.Time.Animate(currentTime, TargetTime, initialIntensity, TargetIntensity, EasingDirection, EasingType);
+                    }
 
                     // Update the current time
                     currentTime += 0.1f;
-
-                    // Reset the timer and stop animating if it reaches maxTime
-                    if (currentTime >= maxTime)
-                    {
-                        currentTime = 0f;
-                        isAnimating = false;
-
-                        // Disable self-updating
-                        Runtime.UpdateFrequency = UpdateFrequency.None;
-                    }
                 }
+
+                //Trigger the next animation on the exact time
+                if (currentTime >= Math.Round(TransitionTime,1))
+                {
+                    transitionTrigger = true;
+                }
+
+                // Reset the timer and stop animating if it reaches maxTime
+                if (currentTime >= TargetTime)
+                {
+                    currentTime = 0f;
+                    isAnimating = false;
+                    isFinished = true;
+                }
+            }
+
+            public bool Trigger()
+            {
+                return transitionTrigger;
+            }
+
+            public bool IsFinished()
+            {
+                return isFinished; 
             }
         }
     }
