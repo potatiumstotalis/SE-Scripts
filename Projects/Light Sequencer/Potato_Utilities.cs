@@ -25,10 +25,6 @@ namespace Light_Sequencer
     {
         public static class Animation
         {
-            public static class Sequence
-            {
-                //Write methods for sequencing/concatenating animations
-            }
 
             //How to use -> Animation.Time.Animate(currentTime, maxTime, startValue, endValue, direction, type);
             public static class Time
