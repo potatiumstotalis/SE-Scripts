@@ -17,6 +17,7 @@ using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Ingame.Utilities;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRageMath;
+using static IngameScript.Program.PotatoAnimation;
 
 namespace IngameScript
 {
@@ -34,14 +35,14 @@ namespace IngameScript
         }
 
         // Default Values
-        string lightName = "Light1";
-        float maxTime = 5f;
-        float targetIntensity = 2f;
-        PotatoAnimation.Time.Direction direction = PotatoAnimation.Time.Direction.InOut;
-        PotatoAnimation.Time.Type type = PotatoAnimation.Time.Type.sine;
-        float currentTime = 0f;
+        string lightName;
+        float maxTime;
+        float targetIntensity;
+        PotatoAnimation.Time.Direction direction;
+        PotatoAnimation.Time.Type type;
+        float currentTime;
         float initialIntensity;
-        bool isAnimating = false;
+        bool isAnimating;
 
         public void Main(string argument, UpdateType updateSource)
         {
@@ -50,10 +51,10 @@ namespace IngameScript
                 // Parse the argument
                 string[] args = argument.Split(',');
                 lightName = args.Length > 0 ? args[0].Trim() : "Light1";
-                float targetIntensity = args.Length > 1 ? float.Parse(args[1].Trim()) : 2f;
+                targetIntensity = args.Length > 1 ? float.Parse(args[1].Trim()) : 2f;
                 maxTime = args.Length > 2 ? float.Parse(args[2].Trim()) : 5f;
-                PotatoAnimation.Time.Direction direction = args.Length > 3 ? (PotatoAnimation.Time.Direction)Enum.Parse(typeof(PotatoAnimation.Time.Direction), args[3].Trim()) : PotatoAnimation.Time.Direction.InOut;
-                PotatoAnimation.Time.Type type = args.Length > 4 ? (PotatoAnimation.Time.Type)Enum.Parse(typeof(PotatoAnimation.Time.Type), args[4].Trim()) : PotatoAnimation.Time.Type.sine;
+                direction = args.Length > 3 ? (PotatoAnimation.Time.Direction)Enum.Parse(typeof(PotatoAnimation.Time.Direction), args[3].Trim()) : PotatoAnimation.Time.Direction.InOut;
+                type = args.Length > 4 ? (PotatoAnimation.Time.Type)Enum.Parse(typeof(PotatoAnimation.Time.Type), args[4].Trim()) : PotatoAnimation.Time.Type.sine;
 
                 // Get the light block
                 IMyInteriorLight light = GridTerminalSystem.GetBlockWithName(lightName) as IMyInteriorLight;
@@ -78,18 +79,13 @@ namespace IngameScript
 
                 if (light != null)
                 {
-                    // Animate the intensity
-                    float newIntensity = PotatoAnimation.Time.Animate(currentTime, maxTime, initialIntensity, targetIntensity, direction, type);
-
-                    Echo("New Intensity: " + newIntensity.ToString());
-                    Echo("Light Intensity: " + light.Intensity);
-                    Echo("Current Time: " + currentTime);
 
                     // Update the light intensity
-                    light.Intensity = newIntensity;
+                    light.Intensity = PotatoAnimation.Time.Animate(currentTime, maxTime, initialIntensity, targetIntensity, direction, type);
+                    Echo("Intensity: " + light.Intensity);
 
                     // Update the current time
-                    currentTime += 0.1f;  // Update1 is approximately 0.1 seconds
+                    currentTime += 0.1f;
 
                     // Reset the timer and stop animating if it reaches maxTime
                     if (currentTime >= maxTime)
