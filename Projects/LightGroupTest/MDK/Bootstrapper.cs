@@ -1,7 +1,6 @@
-﻿using IngameScript;
-using Malware.MDKUtilities;
+﻿using Malware.MDKUtilities;
 
-namespace Light_Sequencer.MDK
+namespace IngameScript.MDK
 {
     public class TestBootstrapper
     {

@@ -79,6 +79,7 @@ namespace IngameScript
                     currentPosition = piston.CurrentPosition;
                     piston.Velocity = P_Animation.Movement.Animate(currentPosition, maxVelocity, initialPosition, targetPosition, moveFactor, direction, type);
                     Echo("Current Position: " + piston.CurrentPosition);
+                    Echo("Velocity: " + piston.Velocity);
                 }
             }
         }

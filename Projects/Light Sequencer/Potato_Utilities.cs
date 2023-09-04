@@ -18,16 +18,16 @@ using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Ingame.Utilities;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRageMath;
-using static IngameScript.Program.Animation;
+using static IngameScript.Program.P_Animation;
 
 namespace IngameScript
 {
     partial class Program
     {
-        public static class Animation
+        public static class P_Animation
         {
 
-            //How to use -> Animation.Time.Animate(currentTime, maxTime, startValue, endValue, ease_direction, ease_type);
+            //How to use -> P_Animation.Time.Animate(currentTime, maxTime, startValue, endValue, ease_direction, ease_type);
             public static class Time
             {
                 public enum Direction { In, Out, InOut }
@@ -140,7 +140,7 @@ namespace IngameScript
                 }
             }
 
-            //How to use: -> Animation.Movement.Animate(currPosition, maxVelocity, startValue, endValue, moveFactor, ease_direction, ease_type);
+            //How to use: -> P_Animation.Movement.Animate(currPosition, maxVelocity, startValue, endValue, moveFactor, ease_direction, ease_type);
             public static class Movement
             {
                 public enum Direction { In, Out, InOut }
@@ -163,7 +163,7 @@ namespace IngameScript
                         case Type.quint:
                             return direction == Direction.In ? InQuint(t) : direction == Direction.Out ? OutQuint(t) : InOutQuint(t);
                         case Type.sine:
-                            return direction == Direction.In ? InSine(t) : direction == Direction.Out ? OutSine(t) : InOutSine(t);
+                            return direction == Direction.Out ? OutSine(t) : InOutSine(t);
                         case Type.expo:
                             return direction == Direction.In ? InExpo(t) : direction == Direction.Out ? OutExpo(t) : InOutExpo(t);
                         case Type.circ:
@@ -181,6 +181,7 @@ namespace IngameScript
                 public static float distance;
                 public static float movementAdder;
                 public static float currentRatio;
+                public static bool isEasingOut;
 
                 public static float Animate(float currPosition, float maxVelocity, float startValue, float endValue, float moveFactor, Direction easedir, Type easetype)
                 {
@@ -189,7 +190,7 @@ namespace IngameScript
 
                     if (startValue < endValue)
                     {
-                        if (currPosition > (endValue - 0.01f))
+                        if (currPosition >= endValue)
                         {
                             finalValue = 0;
                             currentRatio = 0;
@@ -201,23 +202,34 @@ namespace IngameScript
                             if (currPosition < ((distance / 2) + startValue) && currentRatio < 0.5f)
                             {
                                 currentRatio = ((currPosition - startValue) / distance) + moveFactor;
+                                easedRatio = Ease(currentRatio, easedir, easetype);
+                                isEasingOut = false;
                             }
                             else if (currPosition > ((distance / 2) + startValue) && currentRatio < 0.5f)
                             {
-                                currentRatio = ((endValue - currPosition) / distance) - moveFactor;
+                                currentRatio = ((endValue - currPosition) / distance) + moveFactor;
+                                easedRatio = Ease(-(currentRatio - 1), easedir, easetype);
+                                isEasingOut = true;
                             }
                             else
                             {
-                                currentRatio = 0.5f;
+                                easedRatio = 0.5f;
+                                isEasingOut = false;
                             }
 
-                            easedRatio = Ease(currentRatio, easedir, easetype);
-                            finalValue = (easedRatio * 2) * maxVelocity;
+                            if (isEasingOut)
+                            {
+                                finalValue = ((-(easedRatio - 1)) * 2) * maxVelocity;
+                            }
+                            else
+                            {
+                                finalValue = (easedRatio * 2) * maxVelocity;
+                            }
                         }
                     }
                     else
                     {
-                        if (currPosition < (endValue + 0.01f))
+                        if (currPosition <= endValue)
                         {
                             finalValue = 0;
                             currentRatio = 0;
@@ -229,18 +241,29 @@ namespace IngameScript
                             if (currPosition > ((distance / 2) + endValue) && currentRatio < 0.5f)
                             {
                                 currentRatio = -(((currPosition - startValue) / distance) - moveFactor);
+                                easedRatio = Ease(currentRatio, easedir, easetype);
+                                isEasingOut = false;
                             }
                             else if (currPosition < ((distance / 2) + endValue) && currentRatio < 0.5f)
                             {
-                                currentRatio = -(((endValue - currPosition) / distance) + moveFactor);
+                                currentRatio = -(((endValue - currPosition) / distance) - moveFactor);
+                                easedRatio = Ease(-(currentRatio - 1), easedir, easetype);
+                                isEasingOut = true;
                             }
                             else
                             {
-                                currentRatio = 0.5f;
+                                easedRatio = 0.5f;
+                                isEasingOut = false;
                             }
 
-                            easedRatio = Ease(currentRatio, easedir, easetype);
-                            finalValue = -((easedRatio * 2) * maxVelocity);
+                            if (isEasingOut)
+                            {
+                                finalValue = -(((-(easedRatio - 1)) * 2) * maxVelocity);
+                            }
+                            else
+                            {
+                                finalValue = -((easedRatio * 2) * maxVelocity);
+                            }
                         }
                     }
 
@@ -282,7 +305,6 @@ namespace IngameScript
                     return 1 - InQuint((1 - t) * 2) / 2;
                 }
 
-                public static float InSine(float t) => (float)-Math.Cos(t * Math.PI / 2);
                 public static float OutSine(float t) => (float)Math.Sin(t * Math.PI / 2);
                 public static float InOutSine(float t) => (float)(Math.Cos(t * Math.PI) - 1) / -2;
 

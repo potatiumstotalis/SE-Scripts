@@ -20,13 +20,13 @@ using VRage.Game.Utils;
 using VRageMath;
 using VRageRender.Messages;
 
-namespace Light_Sequencer
+namespace IngameScript
 {
     partial class Program : MyGridProgram
     {
         //Defaults
-        Animation.Time.Direction defaultEasingDirection = Animation.Time.Direction.InOut;
-        Animation.Time.Type defaultEasingType = Animation.Time.Type.cubic;
+        P_Animation.Time.Direction defaultEasingDirection = P_Animation.Time.Direction.InOut;
+        P_Animation.Time.Type defaultEasingType = P_Animation.Time.Type.cubic;
 
 
         //ACTUAL SCRIPT STARTS HERE
@@ -78,8 +78,8 @@ namespace Light_Sequencer
                         string blockName = parts[0].Trim();
                         float targetIntensity = parts.Length > 1 ? float.Parse(parts[1].Trim()) : 5f; // Default value
                         float targetTime = parts.Length > 2 ? float.Parse(parts[2].Trim()) : 10f; // Default value
-                        Animation.Time.Direction easingDirection = parts.Length > 3 ? (Animation.Time.Direction)Enum.Parse(typeof(Animation.Time.Direction), parts[3].Trim()) : defaultEasingDirection; // Default value
-                        Animation.Time.Type easingType = parts.Length > 4 ? (Animation.Time.Type)Enum.Parse(typeof(Animation.Time.Type), parts[4].Trim()) : defaultEasingType; // Default value
+                        P_Animation.Time.Direction easingDirection = parts.Length > 3 ? (P_Animation.Time.Direction)Enum.Parse(typeof(P_Animation.Time.Direction), parts[3].Trim()) : defaultEasingDirection; // Default value
+                        P_Animation.Time.Type easingType = parts.Length > 4 ? (P_Animation.Time.Type)Enum.Parse(typeof(P_Animation.Time.Type), parts[4].Trim()) : defaultEasingType; // Default value
                         string blockParameter = parts.Length > 5 ? parts[5].Trim() : "intensity";  // Default Value
 
                         AnimationSection animation_s = new AnimationSection(blockName, targetIntensity, targetTime, easingDirection, easingType, blockParameter);
@@ -271,8 +271,8 @@ namespace Light_Sequencer
             public string BlockName { get; set; }
             public float TargetIntensity { get; set; }
             public float TargetTime { get; set; }
-            public Animation.Time.Direction EasingDirection { get; set; }
-            public Animation.Time.Type EasingType { get; set; }
+            public P_Animation.Time.Direction EasingDirection { get; set; }
+            public P_Animation.Time.Type EasingType { get; set; }
             public string BlockParameter { get; set; }
 
             float initialIntensity = 0f;
@@ -283,7 +283,7 @@ namespace Light_Sequencer
 
             Program p;
 
-            public AnimationSection(string blockName, float targetIntensity, float targetTime, Animation.Time.Direction easingDirection, Animation.Time.Type easingType, string blockParameter)
+            public AnimationSection(string blockName, float targetIntensity, float targetTime, P_Animation.Time.Direction easingDirection, P_Animation.Time.Type easingType, string blockParameter)
             {
                 BlockName = blockName;
                 TargetIntensity = targetIntensity;
@@ -311,11 +311,11 @@ namespace Light_Sequencer
                 {
                     if (BlockParameter.ToLower() == "intensity")
                     {
-                        light.Intensity = Animation.Time.Animate(currentTime, TargetTime, initialIntensity, TargetIntensity, EasingDirection, EasingType);
+                        light.Intensity = P_Animation.Time.Animate(currentTime, TargetTime, initialIntensity, TargetIntensity, EasingDirection, EasingType);
                     }
                     else if (BlockParameter.ToLower() == "radius")
                     {
-                        light.Radius = Animation.Time.Animate(currentTime, TargetTime, initialIntensity, TargetIntensity, EasingDirection, EasingType);
+                        light.Radius = P_Animation.Time.Animate(currentTime, TargetTime, initialIntensity, TargetIntensity, EasingDirection, EasingType);
                     }
 
                     // Update the current time
