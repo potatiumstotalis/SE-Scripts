@@ -25,7 +25,12 @@ namespace Light_Sequencer
         //Defaults
         string defaultEasingDirection = "InOut";
         string defaultEasingType = "cubic";
+
+
         //ACTUAL SCRIPT STARTS HERE
+        List<Sequence> sequences = new List<Sequence>();
+        Dictionary<string, IMyLightingBlock> blockDictionary = new Dictionary<string, IMyLightingBlock>();
+
         public Program()
         {
             // Initialize self-updating
@@ -34,14 +39,15 @@ namespace Light_Sequencer
 
         public void Main(string argument, UpdateType updateSource)
         {
-            LoadData();
+            if ((updateSource & UpdateType.Terminal) != 0 || (updateSource & UpdateType.Script) != 0 || (updateSource & UpdateType.Trigger) != 0 || (updateSource & UpdateType.IGC) != 0)
+            {
+                if (argument.ToLower() == "set") { LoadData(); }
+            }
         }
 
         public void LoadData()
         {
-            // Initialize a dictionary to hold BlockName and corresponding IMyLightingBlock
-            Dictionary<string, IMyLightingBlock> blockDictionary = new Dictionary<string, IMyLightingBlock>();
-
+            UnloadData();
             // Fetch Custom Data
             string customData = Me.CustomData;
 
@@ -93,6 +99,20 @@ namespace Light_Sequencer
                 }
             }
         }
+        public void UnloadData()
+        {
+            // Clear the blockDictionary
+            blockDictionary.Clear();
+
+            // Clear the sequences list
+            sequences.Clear();
+
+            // If you have any other objects, set them to null or new instances as appropriate
+            // For example:
+            // someObject = null;
+            // someList = new List<SomeType>();
+        }
+
 
         public void Save()
         {
@@ -128,6 +148,11 @@ namespace Light_Sequencer
                 TargetTime = targetTime;
                 EasingDirection = easingDirection ?? "InOut";
                 EasingType = easingType ?? "cubic";
+            }
+
+            public void Animate()
+            {
+                // Get the block from the blockDictionary
             }
         }
 
