@@ -18,6 +18,7 @@ using VRage.Game.ModAPI.Ingame.Utilities;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRage.Game.Utils;
 using VRageMath;
+using VRageRender.Messages;
 
 namespace Light_Sequencer
 {
@@ -42,7 +43,7 @@ namespace Light_Sequencer
         {
             if ((updateSource & UpdateType.Terminal) != 0 || (updateSource & UpdateType.Script) != 0 || (updateSource & UpdateType.Trigger) != 0 || (updateSource & UpdateType.IGC) != 0)
             {
-                if (argument.ToLower() == "set") { LoadData(); }
+                if (argument.ToLower() == "set") { LoadData(); };
             }
         }
 
@@ -133,19 +134,133 @@ namespace Light_Sequencer
                 Animations = new List<AnimationSection>();
             }
 
-            public void Animate()
+            int animationIndex = 0;
+            int loopIndex = 0;
+            bool onceEnded = false;
+            bool reverseEnded = false;
+            bool loopEnded = false;
+            bool reverseTrigger = false;
+            bool loopStatus = false;
+            public void AnimationHandler(string seqName, string type)
             {
-                for (int a = 0; a < Animations.Count; a++)
+                switch (type.ToLower())
                 {
-                    if (a == 0)
+                    case "once":
+                        AnimateOnce(seqName);
+                        break;
+                    case "reverse":
+                        AnimateReverse(seqName);
+                        break;
+                    case "loop-1way":
+                        AnimateLoopOneWay(seqName);
+                        break;
+                    case "loop-2way":
+                        AnimateLoopTwoWay(seqName);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            public void changeLoopStatus(bool status)
+            {
+                loopStatus = status;
+            }
+            public void AnimateOnce(string seqName)
+            {
+                if (!onceEnded)
+                {
+                    for (int i = 0; i < Animations.Count; i++)
                     {
-                        Animations[a].ResetTarget();
-                        Animations[a].Animate(true);
+                        AnimationSection currentAnimation = Animations[i];
+
+                        // Determine whether the animation can start
+                        bool canStart = i == 0 || Animations[i - 1].Ready();
+
+                        // Animate the current animation
+                        currentAnimation.Animate(canStart);
+
+                        // If the animation is finished, you can perform any cleanup or state reset here
+                        if (currentAnimation.IsFinished)
+                        {
+                            animationIndex++;
+                        }
+
+                        if (animationIndex >= Animations.Count)
+                        {
+                            animationIndex = 0;
+                            onceEnded = true;
+                        }
                     }
-                    else
+                }
+            }
+            public void AnimateReverse(string seqName)
+            {
+                if (!reverseEnded)
+                {
+                    for (int i = (Animations.Count - 1); i > -1; i--)
                     {
-                        Animations[a].ResetTarget();
-                        Animations[a].Animate(Animations[a - 1].Ready());
+                        AnimationSection currentAnimation = Animations[i];
+
+                        // Determine whether the animation can start
+                        bool canStart = i == 0 || Animations[i - 1].Ready();
+
+                        // Animate the current animation
+                        currentAnimation.Animate(canStart);
+
+                        // If the animation is finished, you can perform any cleanup or state reset here
+                        if (currentAnimation.IsFinished)
+                        {
+                            animationIndex++;
+                        }
+
+                        if (animationIndex >= Animations.Count)
+                        {
+                            animationIndex = 0;
+                            reverseEnded = true;
+                        }
+                    }
+                }
+            }
+            public void AnimateLoopOneWay(string seqName)
+            {
+                if (loopStatus)
+                {
+                    if (loopIndex == 0)
+                    {
+                        AnimateOnce(seqName);
+                        loopIndex++;
+                    }
+
+                    else if (onceEnded)
+                    {
+                        onceEnded = false;
+                        animationIndex = 0;
+                        AnimateOnce(seqName);
+                    }
+                }
+            }
+            public void AnimateLoopTwoWay(string seqName)
+            {
+                if (loopStatus)
+                {
+                    if (loopIndex == 0)
+                    {
+                        AnimateOnce(seqName);
+                        loopIndex++;
+                    }
+
+                    else if (onceEnded)
+                    {
+                        reverseEnded = false;
+                        animationIndex = 0;
+                        AnimateReverse(seqName);
+                    }
+
+                    else if (reverseEnded)
+                    {
+                        onceEnded = false;
+                        animationIndex = 0;
+                        AnimateOnce(seqName);
                     }
                 }
             }
@@ -163,6 +278,7 @@ namespace Light_Sequencer
             float initialIntensity = 0f;
             bool isAnimating = false;
             bool reachedTarget = false;
+            bool isFinished = false;
             float currentTime = 0f;
 
             Program p;
@@ -211,6 +327,7 @@ namespace Light_Sequencer
                         currentTime = 0f;
                         reachedTarget = true;
                         isAnimating = false;
+                        isFinished = true;
                     }
                 }
             }
@@ -220,9 +337,15 @@ namespace Light_Sequencer
                 return reachedTarget;
             }
 
-            public void ResetTarget()
+            public bool IsFinished
+            {
+                get { return isFinished; }
+            }
+
+            public void Reset()
             {
                 reachedTarget = false;
+                isAnimating = false;
             }
         }
 
