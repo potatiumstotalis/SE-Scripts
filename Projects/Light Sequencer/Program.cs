@@ -23,13 +23,13 @@ namespace Light_Sequencer
     partial class Program : MyGridProgram
     {
         //Defaults
-        string defaultEasingDirection = "InOut";
-        string defaultEasingType = "cubic";
+        Animation.Time.Direction defaultEasingDirection = Animation.Time.Direction.InOut;
+        Animation.Time.Type defaultEasingType = Animation.Time.Type.cubic;
 
 
         //ACTUAL SCRIPT STARTS HERE
         List<Sequence> sequences = new List<Sequence>();
-        Dictionary<string, IMyLightingBlock> blockDictionary = new Dictionary<string, IMyLightingBlock>();
+        static Dictionary<string, IMyLightingBlock> blockDictionary = new Dictionary<string, IMyLightingBlock>();
 
         public Program()
         {
@@ -76,8 +76,8 @@ namespace Light_Sequencer
                         string blockName = parts[0].Trim();
                         float targetIntensity = parts.Length > 1 ? float.Parse(parts[1].Trim()) : 5f; // Default value
                         float targetTime = parts.Length > 2 ? float.Parse(parts[2].Trim()) : 10f; // Default value
-                        string easingDirection = parts.Length > 3 ? parts[3].Trim() : defaultEasingDirection; // Default value
-                        string easingType = parts.Length > 4 ? parts[4].Trim() : defaultEasingType; // Default value
+                        Animation.Time.Direction easingDirection = parts.Length > 3 ? (Animation.Time.Direction)Enum.Parse(typeof(Animation.Time.Direction), parts[3].Trim()) : defaultEasingDirection; // Default value
+                        Animation.Time.Type easingType = parts.Length > 4 ? (Animation.Time.Type)Enum.Parse(typeof(Animation.Time.Type), parts[4].Trim()) : defaultEasingType; // Default value
 
                         AnimationSection animation_s = new AnimationSection(blockName, targetIntensity, targetTime, easingDirection, easingType);
                         currentSequence.Animations.Add(animation_s);
@@ -138,21 +138,53 @@ namespace Light_Sequencer
             public string BlockName { get; set; }
             public float TargetIntensity { get; set; }
             public float TargetTime { get; set; }
-            public string EasingDirection { get; set; }
-            public string EasingType { get; set; }
+            public Animation.Time.Direction EasingDirection { get; set; }
+            public Animation.Time.Type EasingType { get; set; }
 
-            public AnimationSection(string blockName, float targetIntensity, float targetTime, string easingDirection, string easingType)
+            float initialIntensity = 0f;
+            bool isAnimating = false;
+            float currentTime = 0f;
+
+            Program p;
+
+            public AnimationSection(string blockName, float targetIntensity, float targetTime, Animation.Time.Direction easingDirection, Animation.Time.Type easingType)
             {
                 BlockName = blockName;
                 TargetIntensity = targetIntensity;
                 TargetTime = targetTime;
-                EasingDirection = easingDirection ?? "InOut";
-                EasingType = easingType ?? "cubic";
+                EasingDirection = easingDirection;
+                EasingType = easingType;
             }
 
             public void Animate()
             {
-                // Get the block from the blockDictionary
+                IMyLightingBlock light = blockDictionary[BlockName];
+
+                if (light != null)
+                {
+                    // Capture the initial intensity
+                    initialIntensity = light.Intensity;
+
+                    // Start the animation
+                    isAnimating = true;
+                }
+
+                if (isAnimating && light != null)
+                {
+                    // Update the light intensity
+                    light.Intensity = Animation.Time.Animate(currentTime, TargetTime, initialIntensity, TargetIntensity, EasingDirection, EasingType);
+                    p.Echo("Intensity: " + light.Intensity);
+
+                    // Update the current time
+                    currentTime += 0.1f;
+
+                    // Reset the timer and stop animating if it reaches maxTime
+                    if (currentTime >= TargetTime)
+                    {
+                        currentTime = 0f;
+                        isAnimating = false;
+                    }
+                }
             }
         }
 
