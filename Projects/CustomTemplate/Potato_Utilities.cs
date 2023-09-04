@@ -30,7 +30,7 @@ namespace IngameScript
                 //Write methods for sequencing/concatenating animations
             }
 
-            //Easing: AnimateTime.Ease(value, startValue, endValue, direction, type)
+            //Easing: AnimateTime.Ease(time, startValue, endValue, direction, type)
             public class Time
             {
                 public enum Direction { In, Out, InOut }
