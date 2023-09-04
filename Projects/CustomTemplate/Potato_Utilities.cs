@@ -18,9 +18,9 @@ using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Ingame.Utilities;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRageMath;
-using static Light_Sequencer.Program.Animation;
+using static IngameScript.Program.Animation;
 
-namespace Light_Sequencer
+namespace IngameScript
 {
     partial class Program
     {

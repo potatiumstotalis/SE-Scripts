@@ -1,4 +1,5 @@
-﻿using Malware.MDKUtilities;
+﻿using IngameScript;
+using Malware.MDKUtilities;
 
 namespace PistonTest.MDK
 {

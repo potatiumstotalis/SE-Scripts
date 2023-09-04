@@ -18,16 +18,16 @@ using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Ingame.Utilities;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRageMath;
-using static Light_Sequencer.Program.Animation;
+using static IngameScript.Program.P_Animation;
 
-namespace Light_Sequencer
+namespace IngameScript
 {
     partial class Program
     {
-        public static class Animation
+        public static class P_Animation
         {
 
-            //How to use -> Animation.Time.Animate(currentTime, maxTime, startValue, endValue, ease_direction, ease_type);
+            //How to use -> P_Animation.Time.Animate(currentTime, maxTime, startValue, endValue, ease_direction, ease_type);
             public static class Time
             {
                 public enum Direction { In, Out, InOut }
@@ -140,7 +140,7 @@ namespace Light_Sequencer
                 }
             }
 
-            //How to use: -> Animation.Movement.Animate(currPosition, maxVelocity, startValue, endValue, moveFactor, ease_direction, ease_type);
+            //How to use: -> P_Animation.Movement.Animate(currPosition, maxVelocity, startValue, endValue, moveFactor, ease_direction, ease_type);
             public static class Movement
             {
                 public enum Direction { In, Out, InOut }

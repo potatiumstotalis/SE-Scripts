@@ -17,13 +17,13 @@ using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Ingame.Utilities;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRageMath;
-using static IngameScript.Program.PotatoAnimation;
+using static IngameScript.Program.Animation;
 
 namespace IngameScript
 {
     partial class Program
     {
-        public class PotatoAnimation
+        public class Animation
         {
             public static class Sequence
             {

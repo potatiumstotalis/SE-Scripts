@@ -18,31 +18,69 @@ using VRage.Game.ModAPI.Ingame.Utilities;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRageMath;
 
-namespace PistonTest
+namespace IngameScript
 {
     partial class Program : MyGridProgram
     {
+        /* How to Use:
+         * 
+         * Run PB with arguments: pistonName, targetPosition, maxVelocity, moveFactor, direction, type
+         * 
+         * Example: Piston1,2,5,0.05,InOut,sine
+         * 
+         */
+
+        //ACTUAL SCRIPT STARTS HERE
         public Program()
         {
-            // The constructor, called only once every session and
-            // always before any other method is called. Use it to
-            // initialize your script.
+            Runtime.UpdateFrequency = UpdateFrequency.None;
         }
 
         public void Save()
         {
-            // Called when the program needs to save its state. Use
-            // this method to save your state to the Storage field
-            // or some other means.
         }
+
+        string pistonName;
+        float maxVelocity;
+        float targetPosition;
+        float moveFactor;
+        P_Animation.Movement.Direction direction;
+        P_Animation.Movement.Type type;
+        float currentPosition;
+        float initialPosition;
+        bool isAnimating;
 
         public void Main(string argument, UpdateType updateSource)
         {
-            // The main entry point of the script, invoked every time
-            // one of the programmable block's Run actions are invoked,
-            // or the script updates itself. The updateSource argument
-            // describes where the update came from.
-        }
+            if ((updateSource & UpdateType.Terminal) != 0 || (updateSource & UpdateType.Trigger) != 0 || (updateSource & UpdateType.Script) != 0)
+            {
+                string[] args = argument.Split(',');
+                pistonName = args.Length > 0 ? args[0].Trim() : "Piston1";
+                targetPosition = args.Length > 1 ? float.Parse(args[1].Trim()) : 10f;
+                maxVelocity = args.Length > 2 ? float.Parse(args[2].Trim()) : 5f;
+                moveFactor = args.Length > 3 ? float.Parse(args[3].Trim()) : 0.05f;
+                direction = args.Length > 4 ? (P_Animation.Movement.Direction)Enum.Parse(typeof(P_Animation.Movement.Direction), args[4].Trim()) : P_Animation.Movement.Direction.InOut;
+                type = args.Length > 5 ? (P_Animation.Movement.Type)Enum.Parse(typeof(P_Animation.Movement.Type), args[5].Trim()) : P_Animation.Movement.Type.sine;
 
+                IMyPistonBase piston = GridTerminalSystem.GetBlockWithName(pistonName) as IMyPistonBase;
+                if (piston != null)
+                {
+                    initialPosition = piston.CurrentPosition;
+                    isAnimating = true;
+                    Runtime.UpdateFrequency = UpdateFrequency.Update1;
+                }
+            }
+
+            if (isAnimating)
+            {
+                IMyPistonBase piston = GridTerminalSystem.GetBlockWithName(pistonName) as IMyPistonBase;
+                if (piston != null)
+                {
+                    currentPosition = piston.CurrentPosition;
+                    piston.Velocity = P_Animation.Movement.Animate(currentPosition, maxVelocity, initialPosition, targetPosition, moveFactor, direction, type);
+                    Echo("Current Position: " + piston.CurrentPosition);
+                }
+            }
+        }
     }
 }
