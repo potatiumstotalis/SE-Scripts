@@ -16,6 +16,7 @@ using VRage.Game.GUI.TextPanel;
 using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Ingame.Utilities;
 using VRage.Game.ObjectBuilders.Definitions;
+using VRage.Game.Utils;
 using VRageMath;
 
 namespace Light_Sequencer
@@ -34,7 +35,7 @@ namespace Light_Sequencer
         public Program()
         {
             // Initialize self-updating
-            Runtime.UpdateFrequency = UpdateFrequency.Update10;
+            Runtime.UpdateFrequency = UpdateFrequency.Update1;
         }
 
         public void Main(string argument, UpdateType updateSource)
@@ -78,8 +79,9 @@ namespace Light_Sequencer
                         float targetTime = parts.Length > 2 ? float.Parse(parts[2].Trim()) : 10f; // Default value
                         Animation.Time.Direction easingDirection = parts.Length > 3 ? (Animation.Time.Direction)Enum.Parse(typeof(Animation.Time.Direction), parts[3].Trim()) : defaultEasingDirection; // Default value
                         Animation.Time.Type easingType = parts.Length > 4 ? (Animation.Time.Type)Enum.Parse(typeof(Animation.Time.Type), parts[4].Trim()) : defaultEasingType; // Default value
+                        string blockParameter = parts.Length > 5 ? parts[5].Trim() : "intensity";  // Default Value
 
-                        AnimationSection animation_s = new AnimationSection(blockName, targetIntensity, targetTime, easingDirection, easingType);
+                        AnimationSection animation_s = new AnimationSection(blockName, targetIntensity, targetTime, easingDirection, easingType, blockParameter);
                         currentSequence.Animations.Add(animation_s);
 
                         // Populate the blockDictionary
@@ -113,7 +115,6 @@ namespace Light_Sequencer
             // someList = new List<SomeType>();
         }
 
-
         public void Save()
         {
             // Called when the program needs to save its state. Use
@@ -131,6 +132,23 @@ namespace Light_Sequencer
                 SequenceName = sequenceName;
                 Animations = new List<AnimationSection>();
             }
+
+            public void Animate()
+            {
+                for (int a = 0; a < Animations.Count; a++)
+                {
+                    if (a == 0)
+                    {
+                        Animations[a].ResetTarget();
+                        Animations[a].Animate(true);
+                    }
+                    else
+                    {
+                        Animations[a].ResetTarget();
+                        Animations[a].Animate(Animations[a - 1].Ready());
+                    }
+                }
+            }
         }
 
         public class AnimationSection
@@ -140,40 +158,49 @@ namespace Light_Sequencer
             public float TargetTime { get; set; }
             public Animation.Time.Direction EasingDirection { get; set; }
             public Animation.Time.Type EasingType { get; set; }
+            public string BlockParameter { get; set; }
 
             float initialIntensity = 0f;
             bool isAnimating = false;
+            bool reachedTarget = false;
             float currentTime = 0f;
 
             Program p;
 
-            public AnimationSection(string blockName, float targetIntensity, float targetTime, Animation.Time.Direction easingDirection, Animation.Time.Type easingType)
+            public AnimationSection(string blockName, float targetIntensity, float targetTime, Animation.Time.Direction easingDirection, Animation.Time.Type easingType, string blockParameter)
             {
                 BlockName = blockName;
                 TargetIntensity = targetIntensity;
                 TargetTime = targetTime;
                 EasingDirection = easingDirection;
                 EasingType = easingType;
+                BlockParameter = blockParameter;
             }
 
-            public void Animate()
+            public void Animate(bool animationTrigger)
             {
                 IMyLightingBlock light = blockDictionary[BlockName];
 
-                if (light != null)
+                if (light != null && animationTrigger && currentTime == 0f && !reachedTarget)
                 {
                     // Capture the initial intensity
                     initialIntensity = light.Intensity;
 
                     // Start the animation
+                    reachedTarget = false;
                     isAnimating = true;
                 }
 
-                if (isAnimating && light != null)
+                if (light != null && isAnimating)
                 {
-                    // Update the light intensity
-                    light.Intensity = Animation.Time.Animate(currentTime, TargetTime, initialIntensity, TargetIntensity, EasingDirection, EasingType);
-                    p.Echo("Intensity: " + light.Intensity);
+                    if (BlockParameter.ToLower() == "intensity")
+                    {
+                        light.Intensity = Animation.Time.Animate(currentTime, TargetTime, initialIntensity, TargetIntensity, EasingDirection, EasingType);
+                    }
+                    else if (BlockParameter.ToLower() == "radius")
+                    {
+                        light.Radius = Animation.Time.Animate(currentTime, TargetTime, initialIntensity, TargetIntensity, EasingDirection, EasingType);
+                    }
 
                     // Update the current time
                     currentTime += 0.1f;
@@ -182,9 +209,20 @@ namespace Light_Sequencer
                     if (currentTime >= TargetTime)
                     {
                         currentTime = 0f;
+                        reachedTarget = true;
                         isAnimating = false;
                     }
                 }
+            }
+
+            public bool Ready()
+            {
+                return reachedTarget;
+            }
+
+            public void ResetTarget()
+            {
+                reachedTarget = false;
             }
         }
 
