@@ -25,13 +25,13 @@ namespace IngameScript
     {
         //ACTUAL SCRIPT STARTS HERE
         P_Animation.Time.Direction defaultEasingDirection = P_Animation.Time.Direction.InOut;
-        P_Animation.Time.Type defaultEasingType = P_Animation.Time.Type.sine;
+        P_Animation.Time.Type defaultEasingType = P_Animation.Time.Type.cubic;
 
         List<AnimationSection> animations = new List<AnimationSection>();
         static Dictionary<string, IMyLightingBlock> blockDictionary = new Dictionary<string, IMyLightingBlock>();
         int animationCount = 0;
 
-        bool sequenceisRunning;
+        bool sequenceisRunning = false;
 
         public Program()
         {
@@ -46,7 +46,6 @@ namespace IngameScript
                 if (argument.ToLower() == "start")
                 {
                     animationCount = 0;
-                    Runtime.UpdateFrequency = UpdateFrequency.Update1;
                     sequenceisRunning = true;
                 }
                 else if (argument.ToLower() == "set")
@@ -54,14 +53,15 @@ namespace IngameScript
                     LoadData();
                 }
             }
-            else if ((updateSource & UpdateType.Update1) != 0)
+
+            if (sequenceisRunning)
             {
+                Runtime.UpdateFrequency = UpdateFrequency.Update10;
                 for (int i = 0; i < animations.Count; i++)
                 {
-                    if (i == 0) { animations[i].Animate(true); }
-                    else { animations[i].Animate(animations[i - 1].Trigger()); Echo("Trigger -> " + (i - 1) + ": " + animations[i - 1].Trigger()); }
-                    Echo("i: " + i);
-                    if (animations[i].IsFinished()) { animationCount++; }
+                    if (i == 0) { if (!animations[i].IsFinished()) { animations[i].Animate(true); } else { animations[i].Animate(false); } }
+                    else { animations[i].Animate(animations[i-1].Trigger()); }
+
                 }
             }
         }
@@ -171,9 +171,13 @@ namespace IngameScript
                 }
 
                 //Trigger the next animation on the exact time
-                if (currentTime >= Math.Round(TransitionTime,1))
+                if (currentTime == Math.Round(TransitionTime,1))
                 {
                     transitionTrigger = true;
+                }
+                else
+                {
+                    transitionTrigger = false;
                 }
 
                 // Reset the timer and stop animating if it reaches maxTime
