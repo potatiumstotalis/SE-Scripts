@@ -47,6 +47,7 @@ namespace IngameScript
                 {
                     animationCount = 0;
                     sequenceisRunning = true;
+                    Runtime.UpdateFrequency = UpdateFrequency.Update1;
                 }
                 else if (argument.ToLower() == "set")
                 {
@@ -56,11 +57,21 @@ namespace IngameScript
 
             if (sequenceisRunning)
             {
-                Runtime.UpdateFrequency = UpdateFrequency.Update10;
                 for (int i = 0; i < animations.Count; i++)
                 {
+                    Echo($"Animation {i}: IsFinished = {animations[i].IsFinished()}, Trigger = {animations[i].Trigger()}");
                     if (i == 0) { if (!animations[i].IsFinished()) { animations[i].Animate(true); } else { animations[i].Animate(false); } }
-                    else { animations[i].Animate(animations[i-1].Trigger()); }
+                    else 
+                    {
+                        if (animations[i - 1].Trigger())
+                        {
+                            animations[i].Animate(true);
+                        }
+                        else
+                        {
+                            animations[i].Animate(false);
+                        }
+                    }
 
                 }
             }
@@ -171,7 +182,7 @@ namespace IngameScript
                 }
 
                 //Trigger the next animation on the exact time
-                if (currentTime == Math.Round(TransitionTime,1))
+                if (currentTime >= TransitionTime)
                 {
                     transitionTrigger = true;
                 }
@@ -191,6 +202,7 @@ namespace IngameScript
 
             public bool Trigger()
             {
+                p.Echo($"Animation {BlockName}: currentTime = {currentTime}, TransitionTime = {TransitionTime}");
                 return transitionTrigger;
             }
 
